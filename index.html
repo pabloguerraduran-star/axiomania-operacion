@@ -1,0 +1,779 @@
+<meta charset="utf-8">
+<title>Operación Axiomania 2026</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: una columna de trabajo para celular; cabecera con el día elegido, pestañas por rol, lista operable debajo. */
+:root{
+  --bg:#f3f4f1; --surface:#ffffff; --ink:#1d2430; --muted:#5d6672; --line:#d9ddd6;
+  --accent:#1f4e79; --accent-ink:#ffffff; --accent-soft:#e3ecf5;
+  --ok:#1f7a4a; --ok-soft:#e1f2e8; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b0302a; --bad-soft:#f8e2e0;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181e; --surface:#1c222a; --ink:#e6e9ee; --muted:#9aa3ae; --line:#2e3640;
+  --accent:#7fb2e5; --accent-ink:#0e1620; --accent-soft:#1f3044;
+  --ok:#5cc58b; --ok-soft:#173326; --warn:#e3a94a; --warn-soft:#3a2b12; --bad:#ef7d75; --bad-soft:#3b1d1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181e; --surface:#1c222a; --ink:#e6e9ee; --muted:#9aa3ae; --line:#2e3640;
+  --accent:#7fb2e5; --accent-ink:#0e1620; --accent-soft:#1f3044;
+  --ok:#5cc58b; --ok-soft:#173326; --warn:#e3a94a; --warn-soft:#3a2b12; --bad:#ef7d75; --bad-soft:#3b1d1b; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);font-variant-numeric:tabular-nums}
+.wrap{max-width:760px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:1.9rem;line-height:1.05}
+h2{font-size:1.35rem}
+h3{font-size:1.05rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.top{display:grid;gap:10px}
+.dayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;min-width:0}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 14px;min-height:44px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.link{border:0;background:none;padding:6px 8px;min-height:0;color:var(--muted);text-decoration:underline}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--ink);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.fiestas{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.fiesta{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.fiesta b{font-family:var(--display);font-size:1.15rem}
+.fiesta.max{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.small{font-size:.85rem;color:var(--muted)}
+nav.tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+nav.tabs button{border:0;background:none;padding:8px 2px;font-size:.92rem;display:grid;gap:0;line-height:1.15;min-width:0;overflow-wrap:anywhere}
+@media (max-width:640px){nav.tabs{grid-template-columns:repeat(4,1fr)}}
+.prods{display:grid;gap:0}
+.prod{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.prod b{font-family:var(--display);font-size:1.15rem;white-space:nowrap}
+.fhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:baseline}
+.tabla{overflow-x:auto}
+.tabla table{border-collapse:collapse;font-size:.85rem;min-width:100%}
+.tabla th,.tabla td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tabla th:first-child,.tabla td:first-child,.tabla th:nth-child(2),.tabla td:nth-child(2){text-align:left}
+.tabla thead th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);vertical-align:bottom;white-space:normal;min-width:64px}
+.tabla tr.hoy td{background:var(--accent-soft)}
+.tabla td.cero{color:var(--line)}
+details summary{cursor:pointer;font-weight:600}
+.origen{display:flex;gap:6px;flex-wrap:wrap}
+.origen button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.item .det{font-size:.85rem;color:var(--muted)}
+nav.tabs button span{font-size:.72rem;font-weight:400;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+nav.tabs button[aria-selected="true"] span{color:var(--accent-ink);opacity:.85}
+.panel{display:grid;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px;min-width:0}
+.banner{border-radius:10px;padding:10px 12px;font-weight:600}
+.banner.warn{background:var(--warn-soft);color:var(--warn)} .banner.bad{background:var(--bad-soft);color:var(--bad)} .banner.ok{background:var(--ok-soft);color:var(--ok)} .banner.info{background:var(--accent-soft)}
+.big{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.big .n{font-family:var(--display);font-size:2.4rem;line-height:1}
+.areas{width:100%;border-collapse:collapse;font-size:.95rem}
+.areas th,.areas td{text-align:left;padding:7px 4px;border-bottom:1px solid var(--line)}
+.areas td.num,.areas th.num{text-align:right}
+.form{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.form .full{grid-column:1/-1}
+@media (max-width:520px){.form{grid-template-columns:1fr}}
+label.f{display:grid;gap:4px;font-size:.85rem;color:var(--muted);font-weight:600}
+.list{display:grid;gap:0}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);min-width:0;flex-wrap:wrap}
+.row:last-child{border-bottom:0}
+.row .who{min-width:0;flex:1 1 180px}
+.row .who b{display:block;overflow-wrap:anywhere}
+.row .act{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{min-width:88px}
+.seg button.on-ok{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.seg button.on-bad{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+button.quitar{color:var(--bad);border-color:var(--bad);background:var(--surface)}
+button.quitar.si{background:var(--bad);color:var(--surface)}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item input[type=checkbox]{width:26px;height:26px;min-height:0;accent-color:var(--ok)}
+.item .q{font-family:var(--display);font-size:1.25rem;text-align:right;white-space:nowrap}
+.item .q small{font-family:var(--body);font-size:.75rem;color:var(--muted);margin-left:3px}
+.item .name{min-width:0;overflow-wrap:anywhere}
+.item .aviso{grid-column:2/-1;font-size:.82rem;color:var(--warn)}
+.item.done .name{color:var(--muted);text-decoration:line-through}
+.eq{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.eq:last-child{border-bottom:0}
+.eq input[type=checkbox]{width:28px;height:28px;min-height:0;accent-color:var(--ok)}
+.eq .who{min-width:0}.eq .who b{display:block;overflow-wrap:anywhere}
+.eq select{max-width:190px}
+.eq.on{background:var(--ok-soft);margin:0 -14px;padding-inline:14px}
+@media (max-width:480px){.eq{grid-template-columns:auto 1fr}.eq select{grid-column:2;max-width:none}}
+.areas tfoot td{font-weight:700;border-bottom:0}
+.diff{grid-column:2/-1;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.diff input{width:120px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.confirm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+footer{font-size:.8rem;color:var(--muted);display:grid;gap:2px}
+.empty{padding:18px;text-align:center;color:var(--muted)}
+.stk{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}
+.stk:last-child{border-bottom:0}
+.stk .name{min-width:0;overflow-wrap:anywhere}
+.stk .q{font-family:var(--display);font-size:1.5rem;text-align:right;white-space:nowrap;line-height:1.1}
+.stk .q small{font-family:var(--body);font-size:.75rem;color:var(--muted);margin-left:3px}
+.stk .sub{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem;color:var(--muted)}
+.stk .sub b{color:var(--ink)}
+.stk .tags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.stk details{grid-column:1/-1}
+.stk details table{border-collapse:collapse;font-size:.85rem;width:100%;margin-top:6px}
+.stk details td{padding:4px 6px;border-bottom:1px solid var(--line)}
+.stk details td.n{text-align:right;white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+</style>
+
+<div class="wrap" id="login" hidden>
+  <header class="top"><div class="eyebrow">Bendito Chef · Axiomania 2026</div><h1>Operación de eventos</h1></header>
+  <form class="card form" id="fLogin" style="grid-template-columns:1fr">
+    <h2>Entrar</h2>
+    <label class="f">Usuario<input id="lUsuario" autocomplete="username" autocapitalize="none" required placeholder="Ej: candy"></label>
+    <label class="f">Clave<input id="lClave" type="password" autocomplete="current-password" required></label>
+    <div class="confirm"><button class="primary" type="submit" id="lEntrar">Entrar</button><span class="small" id="lMsg"></span></div>
+  </form>
+</div>
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div class="eyebrow">Bendito Chef · Axiomania 2026</div>
+    <h1>Operación de eventos</h1>
+    <div class="dayrow">
+      <select id="dia" aria-label="Día de evento"></select>
+      <span id="diaTag"></span>
+    </div>
+    <div id="fiestas" class="fiestas"></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-v="fiestas">Fiestas<span>Resumen</span></button>
+    <button role="tab" data-v="dotacion">Dotación<span>Candy</span></button>
+    <button role="tab" data-v="asistencia">Asistencia<span>Supervisor</span></button>
+    <button role="tab" data-v="bendito">Bendito<span>Despacho</span></button>
+    <button role="tab" data-v="exponor">Exponor<span>Bodega</span></button>
+    <button role="tab" data-v="recepcion">Recepción<span>Evento</span></button>
+    <button role="tab" data-v="stock">Stock<span>Bodega</span></button>
+  </nav>
+
+  <div id="estado"></div>
+
+  <!-- FIESTAS -->
+  <section class="panel" id="v-fiestas" hidden>
+    <div class="card" id="fiesResumen"></div>
+    <div id="fiesLista" class="panel"></div>
+    <div class="card"><details id="fiesTemporada"><summary>Temporada completa: todas las fiestas</summary><div class="tabla" id="fiesTabla"></div></details></div>
+  </section>
+
+  <!-- DOTACIÓN -->
+  <section class="panel" id="v-dotacion" hidden>
+    <div class="card" id="dotResumen"></div>
+    <div class="card">
+      <h2>Equipo del evento</h2>
+      <div class="small" id="eqResumen"></div>
+      <div class="origen" role="group" aria-label="Filtrar lista">
+        <button data-eqfiltro="todos">Todos</button>
+        <button data-eqfiltro="sel">Seleccionados</button>
+        <button data-eqfiltro="libres">Sin seleccionar</button>
+      </div>
+      <div id="eqLista" class="list"></div>
+    </div>
+    <div class="card">
+      <details id="extra"><summary>Agregar persona que no está en la lista</summary>
+      <form id="fPersona" class="form" autocomplete="off" style="margin-top:10px">
+        <label class="f full">Nombre y apellido
+          <input id="pNombre" list="conocidos" required maxlength="80" placeholder="Ej: Flor Núñez">
+        </label>
+        <datalist id="conocidos"></datalist>
+        <label class="f">Teléfono
+          <input id="pTel" inputmode="tel" required maxlength="20" placeholder="+56 9 1234 5678">
+        </label>
+        <label class="f">Área
+          <select id="pArea"></select>
+        </label>
+        <div class="full confirm"><button class="primary" type="submit" id="pGuardar">Agregar al día</button><span id="pMsg" class="small"></span></div>
+      </form></details>
+    </div>
+    <div class="card"><h2>Asignados por estación</h2><div id="dotLista" class="list"></div></div>
+    <div id="huerfanos"></div>
+  </section>
+
+  <!-- ASISTENCIA -->
+  <section class="panel" id="v-asistencia" hidden>
+    <div class="card" id="asisResumen"></div>
+    <div class="card"><h2>Marcar llegada</h2><div id="asisLista" class="list"></div></div>
+  </section>
+
+  <!-- DESPACHO -->
+  <section class="panel" id="v-despacho" hidden>
+    <div class="card" id="despResumen"></div>
+    <div id="despGrupos" class="panel"></div>
+    <div class="card" id="despConfirm"></div>
+  </section>
+
+  <!-- RECEPCIÓN -->
+  <section class="panel" id="v-recepcion" hidden>
+    <div class="origen" role="group" aria-label="Qué estás recibiendo">
+      <button data-origen="bendito">Lo que llega de Bendito</button>
+      <button data-origen="exponor">Lo que sale de bodega Exponor</button>
+    </div>
+    <div class="card" id="recResumen"></div>
+    <div id="recGrupos" class="panel"></div>
+    <div class="card" id="recConfirm"></div>
+  </section>
+
+  <!-- STOCK -->
+  <section class="panel" id="v-stock" hidden>
+    <div class="card" id="stkResumen"></div>
+    <div id="stkGrupos" class="panel"></div>
+  </section>
+
+  <footer id="pie"></footer>
+  <div class="confirm"><span class="small" id="quienSoy"></span><button class="link" id="salir" hidden>Cerrar sesión</button></div>
+</div>
+
+<script>
+const AREAS = ["Hamburguesas","Hot dog","Pizza","Empanadas","Fríos","Horneo y armado","Runner"];
+const S = { plan:null, personal:[], desp:{}, rec:{}, stock:{}, fecha:null, vista:"fiestas", origen:"bendito", uid:null, puede:true, db:null, user:null, nombres:{}, equipo:null, eqFiltro:"todos", areaSel:{}, ultimas:{} };
+const VISTAS = ["fiestas","dotacion","asistencia","bendito","exponor","recepcion","stock"];
+const ORIGEN = {
+  bendito: { titulo:"Despacho Bendito", lista:"bendito", huella:"huella_bendito",
+    ayuda:"Lo que se prepara en la cocina de Bendito: cortes, armados y salsas. Pesos ya cortados. Marca cada ítem cuando esté arriba del camión.",
+    accion:"Confirmar envío", hecho:"Enviado" },
+  exponor: { titulo:"Despacho Exponor", lista:"exponor", huella:"huella_exponor",
+    ayuda:"Lo que hay que sacar hoy de la bodega de Exponor, para todas las fiestas del día. Marca cada ítem cuando esté fuera de bodega.",
+    accion:"Confirmar salida de bodega", hecho:"Salió de bodega" },
+};
+const docId = o => S.fecha + "_" + o;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hoy = () => new Intl.DateTimeFormat("en-CA",{timeZone:"America/Santiago"}).format(new Date());
+const fmtFecha = f => new Date(f+"T12:00:00").toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"short"});
+const fmtHora = iso => iso ? new Date(iso).toLocaleString("es-CL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+const nf = new Intl.NumberFormat("es-CL",{maximumFractionDigits:1});
+const quien = id => id ? (S.nombres[id] || "alguien del equipo") : "";
+
+function dia(){ return S.plan?.dias.find(d => d.fecha === S.fecha) || null; }
+function requerido(d){ return Object.values(d?.dotacion || {}).reduce((a,b)=>a+b,0); }
+
+// ---------- render ----------
+function render(){
+  keepFocus(() => {
+    renderCabecera();
+    const esDesp = S.vista === "bendito" || S.vista === "exponor";
+    for (const v of ["fiestas","dotacion","asistencia","recepcion","stock"]) $("v-"+v).hidden = v !== S.vista;
+    $("v-despacho").hidden = !esDesp;
+    document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.v === S.vista));
+    document.querySelectorAll("[data-origen]").forEach(b => b.setAttribute("aria-pressed", b.dataset.origen === S.origen));
+    if (!S.plan) return;
+    if (esDesp) renderDesp(S.vista);
+    else ({fiestas:renderFiestas, dotacion:renderDot, asistencia:renderAsis, recepcion:() => renderRec(S.origen), stock:renderStock})[S.vista]();
+    renderPie();
+  });
+  resolverNombres();
+}
+
+function keepFocus(fn){
+  const a = document.activeElement, id = a?.id, val = a?.value, sel = a?.selectionStart;
+  fn();
+  if (id && $(id) && $(id) !== a){ const e=$(id); e.value = val; e.focus(); try{ e.setSelectionRange(sel,sel) }catch{} }
+}
+
+function renderCabecera(){
+  const sel = $("dia");
+  if (!S.plan){
+    $("estado").innerHTML = `<div class="card empty">${S.db===false
+      ? "No se pudo conectar con los datos. Revisa tu internet y vuelve a entrar."
+      : "Cargando el plan de eventos…"}</div>`;
+    return;
+  }
+  const opts = S.plan.dias.map(d => `<option value="${d.fecha}">${esc(fmtFecha(d.fecha))} · ${d.fiestas.map(f=>esc(f.empresa)).join(" + ")}</option>`).join("");
+  if (sel.dataset.sig !== opts){ sel.innerHTML = opts; sel.dataset.sig = opts; }
+  sel.value = S.fecha;
+  const prox = proximaFecha();
+  $("diaTag").innerHTML = S.fecha === prox ? `<span class="pill">Próximo evento</span>` : (S.fecha < hoy() ? `<span class="pill warn">Ya pasó</span>` : "");
+  const d = dia(), max = Math.max(...d.fiestas.map(f=>f.personas));
+  $("fiestas").innerHTML = d.fiestas.map(f => `<div class="fiesta ${d.fiestas.length>1 && f.personas===max ? "max":""}">
+      <b>${esc(f.empresa)}</b><span class="small">${esc(f.horario)} · ${nf.format(f.personas)} personas${d.fiestas.length>1 && f.personas===max ? " · fiesta más grande":""}</span></div>`).join("");
+  $("estado").innerHTML = S.puede ? "" : `<div class="banner info">Tienes acceso de solo lectura: puedes ver todo, pero no registrar.</div>`;
+}
+
+function renderPie(){
+  const p = S.plan;
+  $("pie").innerHTML = `<span>Plan: ${esc(p.base || p.fuente)}</span><span>Archivo ${esc(p.fuente)} guardado ${esc(p.fuente_mtime)} · cargado a la app ${esc(p.generado)}</span>`;
+}
+
+function personasDia(){ return S.personal.filter(p => p.dia === S.fecha).sort((a,b)=> AREAS.indexOf(a.area)-AREAS.indexOf(b.area) || a.nombre.localeCompare(b.nombre)); }
+
+// Quitar persona: un toque pide confirmación en la misma fila, el segundo borra.
+function botonQuitar(p){
+  if (!S.puede) return "";
+  return S.borrar === p.id
+    ? `<button class="quitar si" data-del="${p.id}">Sí, quitar a ${esc(p.nombre.split(" ")[0])}</button><button data-nodel="1">Cancelar</button>`
+    : `<button class="quitar" data-askdel="${p.id}" aria-label="Quitar a ${esc(p.nombre)}">Quitar</button>`;
+}
+
+function estadoFalta(req, asig){
+  if (asig < req) return `<span class="pill bad">Faltan ${req-asig}</span>`;
+  if (asig > req) return `<span class="pill warn">Sobran ${asig-req}</span>`;
+  return `<span class="pill ok">Completo</span>`;
+}
+
+function renderDot(){
+  const d = dia(), req = requerido(d), ps = personasDia();
+  const porArea = a => ps.filter(p=>p.area===a).length;
+  const sinArea = ps.filter(p=>!AREAS.includes(p.area)).length;
+  $("dotResumen").innerHTML = `
+    <div class="big"><span class="n">${ps.length}<span class="small"> / ${req}</span></span>${estadoFalta(req, ps.length)}</div>
+    <div class="small">Personas requeridas según la fiesta más grande del día${d.fiestas.length>1?" (no se suman las dos fiestas)":""}.</div>
+    <div style="overflow-x:auto"><table class="areas"><thead><tr><th>Área</th><th class="num">Requeridas</th><th class="num">Asignadas</th><th></th></tr></thead><tbody>
+    ${AREAS.filter(a => (d.dotacion[a]||0) || porArea(a)).map(a => `<tr><td>${a}</td><td class="num">${d.dotacion[a]||0}</td><td class="num">${porArea(a)}</td><td>${estadoFalta(d.dotacion[a]||0, porArea(a))}</td></tr>`).join("")}
+    ${sinArea ? `<tr><td>Sin área</td><td class="num">0</td><td class="num">${sinArea}</td><td></td></tr>`:""}
+    </tbody><tfoot><tr><td>Total personas</td><td class="num">${req}</td><td class="num">${ps.length}</td><td>${estadoFalta(req, ps.length)}</td></tr></tfoot></table></div>`;
+  renderEquipo(d, ps, porArea);
+  const aSel = $("pArea"), ao = AREAS.map(a => `<option ${!(d.dotacion[a]) ? "":""} value="${a}">${a}${d.dotacion[a] ? ` (faltan ${Math.max(0,d.dotacion[a]-porArea(a))})` : " (no se usa hoy)"}</option>`).join("");
+  const prev = aSel.value; aSel.innerHTML = ao;
+  aSel.value = prev && AREAS.includes(prev) ? prev : (AREAS.find(a => (d.dotacion[a]||0) > porArea(a)) || AREAS[0]);
+  $("pGuardar").disabled = !S.puede;
+  const conocidos = new Map(); (S.equipo?.personas||[]).forEach(e => conocidos.set(e.nombre, normTel(e.telefono)||e.telefono)); S.personal.forEach(p => conocidos.set(p.nombre, p.telefono));
+  $("conocidos").innerHTML = [...conocidos.keys()].sort().map(n => `<option value="${esc(n)}">`).join("");
+  $("dotLista").innerHTML = ps.length ? ps.map(p => `<div class="row">
+      <div class="who"><b>${esc(p.nombre)}</b><span class="small">${esc(p.area||"Sin área")} · ${esc(p.telefono)}</span></div>
+      <div class="act">${botonQuitar(p)}</div></div>`).join("")
+    : `<div class="empty">Todavía no hay nadie asignado a este día. Agrega la primera persona arriba.</div>`;
+  const fechas = new Set(S.plan.dias.map(x=>x.fecha));
+  const huer = {}; S.personal.forEach(p => { if (!fechas.has(p.dia)) huer[p.dia] = (huer[p.dia]||0)+1; });
+  const hk = Object.keys(huer).sort();
+  $("huerfanos").innerHTML = hk.length ? `<div class="banner warn">El plan cambió y hay personas asignadas a días que ya no tienen evento: ${hk.map(f=>`${esc(fmtFecha(f))} (${huer[f]})`).join(", ")}. Reasígnalas o quítalas.</div>
+    <div class="card list">${S.personal.filter(p=>!fechas.has(p.dia)).map(p=>`<div class="row"><div class="who"><b>${esc(p.nombre)}</b><span class="small">${esc(fmtFecha(p.dia))} · ${esc(p.area||"")}</span></div>
+    <div class="act">${S.puede?`<button data-mover="${p.id}">Mover al día elegido</button>`:""}${botonQuitar(p)}</div></div>`).join("")}</div>` : "";
+}
+
+function normN(n){ return String(n||"").replace(/\s+/g," ").trim().toLowerCase(); }
+const keyN = n => normN(n).toUpperCase().replace(/[^A-Z0-9]+/g,"_");
+const areaValida = a => AREAS.includes(a) ? a : null;
+// Estación que se propone para quien aún no está en el día: la fija > la última que se le marcó > la que más falta.
+const areaPara = (e, sug) => areaValida(e.area_fija) || areaValida(S.areaSel[e.nombre]) || areaValida(S.ultimas?.[keyN(e.nombre)]) || sug;
+function recordarArea(e, area){
+  if (e.area_fija) return;
+  S.ultimas = { ...S.ultimas, [keyN(e.nombre)]: area };
+  escribir(() => S.db.collection("equipo").doc("ultimas").update({ [keyN(e.nombre)]: area }));
+}
+function renderEquipo(d, ps, porArea){
+  document.querySelectorAll("[data-eqfiltro]").forEach(b => b.setAttribute("aria-pressed", b.dataset.eqfiltro === S.eqFiltro));
+  const E = S.equipo?.personas || [];
+  if (!E.length){ $("eqResumen").textContent = ""; $("eqLista").innerHTML = `<div class="empty">${S.equipo===null ? "Cargando el listado del equipo…" : "El listado del equipo todavía no está cargado. Pídele a Pablo que lo cargue."}</div>`; return; }
+  const deDia = new Map(ps.map(p => [normN(p.nombre), p]));
+  const nSel = E.filter(e => deDia.has(normN(e.nombre))).length, extras = ps.length - nSel;
+  const req = requerido(d);
+  $("eqResumen").innerHTML = `<b>${ps.length}</b> asignadas de <b>${req}</b> requeridas · ${nSel} del equipo de ${E.length}${extras ? ` + ${extras} fuera de la lista` : ""} · ${E.length - nSel} sin seleccionar. Marca a cada persona y elige su estación.`;
+  const sug = AREAS.find(a => (d.dotacion[a]||0) > porArea(a)) || AREAS[0];
+  const lista = E.map((e,i) => ({e, i, p: deDia.get(normN(e.nombre))})).filter(x => S.eqFiltro==="sel" ? x.p : S.eqFiltro==="libres" ? !x.p : true);
+  $("eqLista").innerHTML = lista.length ? lista.map(({e,i,p}) => {
+    const area = p ? p.area : areaPara(e, sug);
+    const tel = normTel(e.telefono) || e.telefono;
+    return `<div class="eq ${p?"on":""}">
+      <input type="checkbox" id="eqc-${i}" data-eq="${i}" aria-label="Seleccionar a ${esc(e.nombre)}" ${p?"checked":""} ${S.puede?"":"disabled"}>
+      <label class="who" for="eqc-${i}"><b>${esc(e.nombre)}</b><span class="small">${esc(tel)}${e.area_fija?" · estación fija":""}${p?.llego===true?" · llegó":""}</span></label>
+      <select id="eqa-${i}" data-eqarea="${i}" aria-label="Estación de ${esc(e.nombre)}" ${S.puede?"":"disabled"}>
+        ${AREAS.map(a => `<option value="${a}" ${a===area?"selected":""}>${a}${d.dotacion[a] ? ` (${porArea(a)}/${d.dotacion[a]})` : " (no se usa)"}</option>`).join("")}
+      </select></div>`; }).join("") : `<div class="empty">Nadie en este filtro.</div>`;
+}
+
+function renderAsis(){
+  const d = dia(), req = requerido(d), ps = personasDia();
+  const llegaron = ps.filter(p=>p.llego===true).length, no = ps.filter(p=>p.llego===false).length;
+  $("asisResumen").innerHTML = `
+    <div class="big"><span class="n">${llegaron}<span class="small"> llegaron</span></span>
+      <span class="small">${ps.length} asignadas · ${req} requeridas · ${no} no llegaron · ${ps.length-llegaron-no} sin marcar</span></div>
+    <div class="bar"><i style="width:${req? Math.min(100, llegaron/req*100):0}%"></i></div>
+    ${llegaron < req && ps.length-llegaron-no === 0 && ps.length ? `<div class="banner bad">Faltan ${req-llegaron} personas en el evento. Avísale a Candy.</div>`:""}`;
+  $("asisLista").innerHTML = ps.length ? ps.map(p => `<div class="row">
+      <div class="who"><b>${esc(p.nombre)}</b><span class="small">${esc(p.area||"Sin área")} · ${esc(p.telefono)}${p.llegoAt ? ` · marcado ${esc(fmtHora(p.llegoAt))}${p.llegoPor? " por "+esc(quien(p.llegoPor)):""}`:""}</span></div>
+      <div class="act seg">
+        <button data-llego="${p.id}" data-val="1" class="${p.llego===true?"on-ok":""}" ${S.puede?"":"disabled"} aria-pressed="${p.llego===true}">Llegó</button>
+        <button data-llego="${p.id}" data-val="0" class="${p.llego===false?"on-bad":""}" ${S.puede?"":"disabled"} aria-pressed="${p.llego===false}">No llegó</button>
+        ${botonQuitar(p)}
+      </div></div>`).join("")
+    : `<div class="empty">Candy todavía no asigna personas a este día.</div>`;
+}
+
+function grupos(items){
+  const g = {}; items.forEach(it => (g[it.grupo] ||= []).push(it)); return g;
+}
+
+function renderFiestas(){
+  const d = dia(), P = S.plan.productos || [];
+  const totDia = {}; d.fiestas.forEach(f => Object.entries(f.productos||{}).forEach(([p,n]) => totDia[p] = (totDia[p]||0) + n));
+  const rac = Object.values(totDia).reduce((a,b)=>a+b,0);
+  $("fiesResumen").innerHTML = `
+    <h2>${d.fiestas.length === 1 ? "1 fiesta" : d.fiestas.length + " fiestas"} · ${nf.format(rac)} raciones</h2>
+    ${d.fiestas.length > 1 ? `<div class="prods">${P.filter(p=>totDia[p]).map(p => `<div class="prod"><span>${esc(p)}</span><b>${nf.format(totDia[p])}</b></div>`).join("")}</div>
+      <div class="small">Total del día, sumando las dos fiestas.</div>` : `<div class="small">Lo que se entrega en la fiesta del día.</div>`}`;
+  $("fiesLista").innerHTML = d.fiestas.map(f => {
+    const prods = P.filter(p => f.productos?.[p]);
+    const r = prods.reduce((a,p)=>a+f.productos[p],0);
+    return `<div class="card">
+      <div class="fhead"><h2>${esc(f.empresa)}</h2><span class="small">${esc(f.horario)}</span></div>
+      <div class="small">${nf.format(f.personas)} personas · ${nf.format(f.adultos)} adultos · ${nf.format(f.ninos)} niños · ${nf.format(r)} raciones</div>
+      <div class="prods">${prods.map(p => `<div class="prod"><span>${esc(p)}${f.productos[p] > f.personas ? ` <span class="pill warn">más que personas</span>`:""}</span><b>${nf.format(f.productos[p])}</b></div>`).join("")
+        || `<div class="empty">La planilla del cliente no trae productos para esta fiesta.</div>`}</div></div>`;
+  }).join("");
+  const filas = S.plan.dias.flatMap(x => x.fiestas.map(f => ({fecha:x.fecha, f})));
+  $("fiesTabla").innerHTML = `<table><thead><tr><th>Fecha</th><th>Fiesta</th><th>Personas</th>${P.map(p=>`<th>${esc(p)}</th>`).join("")}</tr></thead><tbody>
+    ${filas.map(({fecha,f}) => `<tr class="${fecha===S.fecha?"hoy":""}"><td>${esc(new Date(fecha+"T12:00:00").toLocaleDateString("es-CL",{weekday:"short",day:"numeric",month:"short"}))}</td><td>${esc(f.empresa)}</td><td>${nf.format(f.personas)}</td>
+      ${P.map(p => f.productos?.[p] ? `<td>${nf.format(f.productos[p])}</td>` : `<td class="cero">·</td>`).join("")}</tr>`).join("")}
+    <tr><td></td><td><b>Total</b></td><td><b>${nf.format(filas.reduce((a,{f})=>a+f.personas,0))}</b></td>${P.map(p => `<td><b>${nf.format(filas.reduce((a,{f})=>a+(f.productos?.[p]||0),0))}</b></td>`).join("")}</tr>
+    </tbody></table>`;
+}
+
+// ---------- stock de bodega ----------
+// Saldo = entradas (producción y facturas, docs stock/produccion y stock/facturas) menos salidas
+// (ítems marcados "fuera de bodega" en Despacho Exponor, con la cantidad del plan de ese día).
+// Ítems del despacho de Bendito que también llevan stock (entran por la planilla de producción).
+const STOCK_BENDITO = new Set(["CARNE_PARA_CHURRASQUEAR_LAMINADO_DELGADO"]);
+// Rendimiento (neto/bruto) de los ítems cuyo plan está en peso BRUTO. Fuente: RECETAS (EVENTOS), columna REND
+// (carne para churrasquear: 0,7 en CHURRASCO ITALIANO y BARROS LUCO; neto 0,12 kg/plato, bruto = 0,12/0,7).
+// El stock de estos ítems se lleva en NETO (ver stockFilas).
+const REND = { CARNE_PARA_CHURRASQUEAR_LAMINADO_DELGADO: 0.7, PALTA: 0.65 };
+// Palta: rendimiento 65% (molida/sellada/congelada), PROYECCION fila 73; plan = kg de compra (bruto), producción anotada = kg molidos netos.
+const NETO_TXT = { PALTA: ["kg neto (molida)", "kg de compra (bruta)"] };
+const suma = (a, f) => a.reduce((t, x) => t + (+x[f] || 0), 0);
+function stockFilas(){
+  const C = {}, LISTAS = [];   // [origen, lista] de cada día que lleva stock
+  for (const d of S.plan.dias){
+    LISTAS.push(["exponor", d, d.exponor || []]);
+    LISTAS.push(["bendito", d, (d.bendito || []).filter(it => STOCK_BENDITO.has(it.k))]);
+  }
+  for (const [, d, lista] of LISTAS) for (const it of lista){
+    const c = C[it.k] ||= { k:it.k, insumo:it.insumo, detalle:it.detalle || "", um:it.um, grupo:it.grupo, plan:0, porDia:{} };
+    c.plan += it.cant; c.porDia[d.fecha] = (c.porDia[d.fecha] || 0) + it.cant;
+  }
+  const ent = [...(S.stock.produccion?.movs || []), ...(S.stock.facturas?.movs || [])];
+  const sal = {};
+  for (const [o, d, lista] of LISTAS){
+    const marc = S.desp[d.fecha + "_" + o]?.items; if (!marc) continue;
+    for (const it of lista) if (marc[it.k]?.ok) (sal[it.k] ||= []).push({ fecha:d.fecha, cant:it.cant });
+  }
+  for (const m of ent) if (!C[m.k]) C[m.k] = { k:m.k, insumo:m.insumo || m.k, detalle:"", um:m.um || "", grupo:"Otros", plan:0, porDia:{} };
+  return Object.values(C).map(c => {
+    // Ítems con REND: el plan y el despacho están en kg BRUTO, pero la producción se anota en kg NETO (cortado y
+    // cocinado). La base del stock es neto: plan y salidas se convierten (bruto x rendimiento); las entradas van tal cual.
+    const r = REND[c.k] || 1;
+    const e = ent.filter(m => m.k === c.k).sort((a,b) => a.fecha.localeCompare(b.fecha)), s = (sal[c.k] || []).map(x => ({ ...x, cant: x.cant * r }));
+    const plan = c.plan * r, te = suma(e, "cant"), ts = suma(s, "cant"), hoyNec = (c.porDia[S.fecha] || 0) * r, salioHoy = s.some(x => x.fecha === S.fecha);
+    return { ...c, plan, r, e, s, te, ts, saldo: te - ts, falta: Math.max(0, plan - te), hoyNec, salioHoy };
+  });
+}
+
+function renderStock(){
+  const F = stockFilas(), sinEnt = F.filter(f => !f.e.length), neg = F.filter(f => f.saldo < -0.05);
+  const faltaHoy = F.filter(f => f.hoyNec && !f.salioHoy && f.saldo < f.hoyNec - 0.05);
+  const conEnt = F.length - sinEnt.length;
+  $("stkResumen").innerHTML = `
+    <h2>Stock en bodega</h2>
+    <div class="big"><span class="n">${conEnt}<span class="small"> / ${F.length} ítems con entradas</span></span>
+      ${faltaHoy.length ? `<span class="pill bad">${faltaHoy.length} no alcanzan para ${esc(fmtFecha(S.fecha))}</span>` : ""}
+      ${neg.length ? `<span class="pill bad">${neg.length} con saldo negativo</span>` : ""}</div>
+    <div class="small">Saldo = lo que entró (producción y facturas) menos lo que salió de bodega, o sea los ítems marcados en Despacho Exponor (el churrasco, en Despacho Bendito). Los ítems sin entradas registradas no tienen saldo: faltan sus facturas o su producción.</div>
+    ${neg.length ? `<div class="banner bad">Salió más de lo que se registró como entrada. Falta cargar una factura o producción, o se marcó un despacho de más.</div>` : ""}`;
+  const G = {}; F.forEach(f => (G[f.grupo] ||= []).push(f));
+  $("stkGrupos").innerHTML = Object.keys(G).sort().map(g => `<div class="card"><h3>${esc(g)}</h3><div>
+    ${G[g].sort((a,b) => a.insumo.localeCompare(b.insumo)).map(f => {
+      const tags = [];
+      if (!f.e.length) tags.push(`<span class="pill warn">Sin entradas registradas</span>`);
+      else if (f.saldo < -0.05) tags.push(`<span class="pill bad">Saldo negativo</span>`);
+      else if (f.te >= f.plan) tags.push(`<span class="pill ok">Cubre toda la temporada</span>`);
+      else tags.push(`<span class="pill">Faltan ${nf.format(f.falta)} ${esc(f.um.toLowerCase())} para la temporada</span>`);
+      if (f.hoyNec && f.salioHoy) tags.push(`<span class="pill ok">Salió el ${esc(fmtFecha(S.fecha))}</span>`);
+      else if (f.hoyNec && f.e.length && f.saldo < f.hoyNec - 0.05) tags.push(`<span class="pill bad">Hoy salen ${nf.format(f.hoyNec)} y hay ${nf.format(Math.max(0, f.saldo))}</span>`);
+      else if (f.hoyNec) tags.push(`<span class="pill">Hoy salen ${nf.format(f.hoyNec)}</span>`);
+      const movs = [...f.e.map(m => ({ fecha:m.fecha, t:m.tipo === "factura" ? "Factura" : "Producción", cant:m.cant, nota:m.nota || m.ref || "", mas:true })),
+                    ...f.s.map(m => ({ fecha:m.fecha, t:"Salió de bodega", cant:m.cant, nota:"", mas:false }))].sort((a,b) => a.fecha.localeCompare(b.fecha));
+      return `<div class="stk">
+        <span class="name"><b>${esc(f.insumo)}</b>${f.detalle ? `<br><span class="small">${esc(f.detalle)}</span>` : ""}</span>
+        <span class="q">${f.e.length ? nf.format(f.saldo) : "–"}<small>${esc(f.um.toLowerCase())}</small></span>
+        <span class="sub"><span>Entró <b>${nf.format(f.te)}</b></span><span>Salió <b>${nf.format(f.ts)}</b></span><span>Plan temporada <b>${nf.format(f.plan)}</b></span></span>
+        ${f.r !== 1 ? `<span class="sub"><span>Cantidades en <b>${(NETO_TXT[f.k]||["kg neto (cortado y cocinado)"])[0]}</b>. Equivale a ${(NETO_TXT[f.k]||[0,"kg bruto (crudo)"])[1]}, rendimiento ${nf.format(f.r*100)}%):</span><span>saldo <b>${f.e.length ? nf.format(f.saldo/f.r) : "–"}</b></span><span>entró <b>${nf.format(f.te/f.r)}</b></span><span>salió <b>${nf.format(f.ts/f.r)}</b></span><span>plan <b>${nf.format(f.plan/f.r)}</b></span></span>` : ""}
+        <span class="tags">${tags.join("")}</span>
+        ${movs.length ? `<details><summary class="small">Movimientos (${movs.length})</summary><table><tbody>${movs.map(m => `<tr><td>${esc(new Date(m.fecha+"T12:00:00").toLocaleDateString("es-CL",{day:"numeric",month:"short"}))}</td><td>${m.t}${m.nota ? ` · <span class="small">${esc(m.nota)}</span>` : ""}</td><td class="n">${m.mas ? "+" : "−"}${nf.format(m.cant)}</td></tr>`).join("")}</tbody></table></details>` : ""}
+      </div>`; }).join("")}</div></div>`).join("");
+}
+
+function lineaItem(it, extra){
+  return `<span class="name"><b>${esc(it.insumo)}</b>${it.detalle?`<br><span class="det">${esc(it.detalle)}</span>`:""}</span>
+      <span class="q">${nf.format(it.cant)}<small>${esc(it.um.toLowerCase())}</small></span>${extra||""}
+      ${it.aviso?`<span class="aviso">⚠ ${esc(it.aviso)}</span>`:""}`;
+}
+
+function renderDesp(o){
+  const O = ORIGEN[o], d = dia(), lista = d[O.lista] || [], doc = S.desp[docId(o)] || {}, marc = doc.items || {}, env = doc.enviado;
+  const n = lista.length, ok = lista.filter(it => marc[it.k]?.ok).length;
+  const cambio = env && env.huella !== d[O.huella];
+  $("despResumen").innerHTML = `
+    <h2>${O.titulo}</h2>
+    <div class="big"><span class="n">${ok}<span class="small"> / ${n} ítems listos</span></span>
+      ${env ? `<span class="pill ok">${O.hecho} ${esc(fmtHora(env.at))}</span>` : (n && ok===n ? `<span class="pill ok">Listo para confirmar</span>`:`<span class="pill warn">Faltan ${n-ok}</span>`)}</div>
+    <div class="bar"><i style="width:${n? ok/n*100:0}%"></i></div>
+    ${cambio ? `<div class="banner bad">El plan de este día cambió después de confirmar. Revisa la lista y avisa al evento.</div>`:""}
+    <div class="small">${O.ayuda}</div>`;
+  const G = grupos(lista);
+  $("despGrupos").innerHTML = n ? Object.keys(G).map(g => `<div class="card"><h3>${esc(g)}</h3><div>
+    ${G[g].map(it => { const m = marc[it.k]; return `<label class="item ${m?.ok?"done":""}">
+      <input type="checkbox" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${(!S.puede||env)?"disabled":""}>
+      ${lineaItem(it)}</label>`}).join("")}</div></div>`).join("")
+    : `<div class="card empty">Este día no hay nada en ${O.titulo.toLowerCase()}.</div>`;
+  $("despConfirm").innerHTML = env
+    ? `<div class="banner ok">${O.hecho} ${esc(fmtHora(env.at))}${env.por?" · confirmó "+esc(quien(env.por)):""}.${env.nota?" Nota: "+esc(env.nota):""}</div>
+       ${S.puede?`<div class="confirm"><button data-reabrir="${o}">Reabrir</button><span class="small">Úsalo solo si hay que corregir.</span></div>`:""}`
+    : `<label class="f">Nota para quien recibe (opcional)<input id="despNota-${o}" maxlength="200" placeholder="Ej: el tomate en cubos va en las cajas azules"></label>
+       <div class="confirm"><button class="primary" data-enviar="${o}" ${(n && ok===n && S.puede)?"":"disabled"}>${O.accion}</button>
+       <span class="small">${ok===n ? "Todo listo." : `Marca los ${n-ok} ítems que faltan para poder confirmar.`}</span></div>`;
+}
+
+function renderRec(o){
+  const O = ORIGEN[o], d = dia(), lista = d[O.lista] || [];
+  const env = (S.desp[docId(o)]||{}).enviado, doc = S.rec[docId(o)] || {}, marc = doc.items || {}, rec = doc.recibido;
+  const n = lista.length;
+  const conDif = lista.filter(it => marc[it.k]?.dif);
+  const ok = lista.filter(it => marc[it.k]?.ok).length;
+  const revisados = ok + conDif.length;
+  $("recResumen").innerHTML = `
+    <h2>Recepción · ${o === "bendito" ? "desde Bendito" : "desde bodega Exponor"}</h2>
+    <div class="big"><span class="n">${revisados}<span class="small"> / ${n} ítems revisados</span></span>
+      ${rec ? `<span class="pill ok">Recibido ${esc(fmtHora(rec.at))}</span>` : ""}
+      ${conDif.length ? `<span class="pill bad">${conDif.length} con diferencia</span>`:""}</div>
+    <div class="bar"><i style="width:${n? revisados/n*100:0}%"></i></div>
+    ${env ? `<div class="small">${O.hecho} ${esc(fmtHora(env.at))}${env.por?" · confirmó "+esc(quien(env.por)):""}.${env.nota?` Nota: <b>${esc(env.nota)}</b>`:""}</div>`
+          : `<div class="banner warn">${O.titulo} todavía no está confirmado. Puedes revisar igual si ya llegó.</div>`}
+    <div class="small">Marca el ítem si llegó completo. Si no, toca “Diferencia” y anota cuánto llegó.</div>`;
+  const G = grupos(lista), bloq = !S.puede || !!rec;
+  $("recGrupos").innerHTML = n ? Object.keys(G).map(g => `<div class="card"><h3>${esc(g)}</h3><div>
+    ${G[g].map(it => { const k = it.k, m = marc[k] || {}; return `<div class="item ${m.ok?"done":""}">
+      <input type="checkbox" aria-label="Llegó completo" data-rec="${esc(k)}" ${m.ok?"checked":""} ${bloq?"disabled":""}>
+      ${lineaItem(it, `<div class="diff">${m.dif
+        ? `<label class="small" for="rq-${o}-${esc(k)}">Llegó:</label><input id="rq-${o}-${esc(k)}" inputmode="decimal" data-recq="${esc(k)}" value="${esc(m.cant ?? "")}" ${bloq?"disabled":""}>
+           <input id="rn-${o}-${esc(k)}" data-recn="${esc(k)}" placeholder="Nota" maxlength="120" value="${esc(m.nota ?? "")}" ${bloq?"disabled":""} style="flex:1 1 140px">
+           ${bloq?"":`<button class="link" data-recdif="${esc(k)}" data-off="1">Quitar diferencia</button>`}`
+        : (bloq || m.ok ? "" : `<button class="link" data-recdif="${esc(k)}">Diferencia</button>`)}</div>`)}</div>`}).join("")}</div></div>`).join("")
+    : `<div class="card empty">Este día no hay nada que recibir desde ${o === "bendito" ? "Bendito" : "la bodega"}.</div>`;
+  $("recConfirm").innerHTML = rec
+    ? `<div class="banner ok">Recepción confirmada ${esc(fmtHora(rec.at))}${rec.por?" por "+esc(quien(rec.por)):""}. ${conDif.length? conDif.length+" ítems con diferencia.":"Todo llegó completo."}</div>
+       ${S.puede?`<div class="confirm"><button data-reabrirrec="${o}">Reabrir recepción</button></div>`:""}`
+    : `<div class="confirm"><button class="primary" data-recibir="${o}" ${(n && revisados===n && S.puede)?"":"disabled"}>Confirmar recepción</button>
+       <span class="small">${revisados===n ? "Todo revisado." : `Faltan ${n-revisados} ítems por revisar.`}</span></div>`;
+}
+
+async function resolverNombres(){
+  if (!S.user) return;
+  const ids = new Set();
+  S.personal.forEach(p => p.llegoPor && ids.add(p.llegoPor));
+  Object.values(S.desp).forEach(x => x.enviado?.por && ids.add(x.enviado.por));
+  Object.values(S.rec).forEach(x => x.recibido?.por && ids.add(x.recibido.por));
+  const falt = [...ids].filter(i => !(i in S.nombres));
+  if (!falt.length) return;
+  const ps = await S.user.profiles(falt);
+  let cambio = false;
+  for (const i of falt){ S.nombres[i] = ps[i]?.name || ""; cambio = true; }
+  if (cambio) render();
+}
+
+// ---------- fechas ----------
+function proximaFecha(){
+  const h = hoy(), ds = S.plan.dias.map(d=>d.fecha);
+  return ds.find(f => f >= h) || ds[ds.length-1];
+}
+
+// ---------- escrituras ----------
+async function escribir(fn){
+  try { await fn(); }
+  catch(e){
+    if (e?.code === "invalid_argument"){ S.puede = false; render(); }
+    else flash("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.");
+    console.error(e);
+  }
+}
+function flash(t){ $("estado").innerHTML = `<div class="banner bad">${esc(t)}</div>`; setTimeout(()=>{ if(S.plan) renderCabecera(); }, 5000); }
+const ahora = () => new Date().toISOString();
+
+async function upsert(col, id, parcial){
+  const ref = S.db.collection(col).doc(id);
+  const actual = (col==="despacho"?S.desp:S.rec)[id];
+  if (actual) await ref.update(parcial); else await ref.set(parcial);
+}
+
+function normTel(t){
+  const dig = t.replace(/\D/g,"");
+  if (dig.length === 9 && dig[0]==="9") return "+56 9 " + dig.slice(1,5) + " " + dig.slice(5);
+  if (dig.length === 11 && dig.startsWith("569")) return "+56 9 " + dig.slice(3,7) + " " + dig.slice(7);
+  return null;
+}
+
+$("fPersona").addEventListener("submit", e => {
+  e.preventDefault();
+  const nombre = $("pNombre").value.trim().replace(/\s+/g," "), tel = normTel($("pTel").value), area = $("pArea").value;
+  if (!nombre){ $("pMsg").textContent = "Escribe el nombre."; return; }
+  if (!tel){ $("pMsg").textContent = "El teléfono debe ser un celular chileno de 9 dígitos (9 1234 5678)."; return; }
+  if (personasDia().some(p => p.nombre.toLowerCase() === nombre.toLowerCase())){ $("pMsg").textContent = `${nombre} ya está en este día.`; return; }
+  escribir(async () => {
+    await S.db.collection("personal").add({ dia:S.fecha, nombre, telefono:tel, area, creadoAt:ahora(), creadoPor:S.uid, llego:null });
+    $("pNombre").value = ""; $("pTel").value = ""; $("pMsg").textContent = `${nombre} agregada al ${fmtFecha(S.fecha)}.`;
+    $("pNombre").focus();
+  });
+});
+$("pNombre").addEventListener("change", () => {
+  const p = S.personal.find(x => x.nombre === $("pNombre").value.trim());
+  if (p && !$("pTel").value) $("pTel").value = p.telefono;
+});
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const ds = b.dataset;
+  if (ds.eqfiltro){ S.eqFiltro = ds.eqfiltro; render(); return; }
+  if (ds.origen){ S.origen = ds.origen; render(); return; }
+  if (ds.v){ S.vista = ds.v; try{ history.replaceState(null,"","#"+ds.v) }catch{} render(); return; }
+  if (ds.askdel){ S.borrar = ds.askdel; render(); return; }
+  if (ds.nodel){ S.borrar = null; render(); return; }
+  if (ds.del){ S.borrar = null; escribir(() => S.db.collection("personal").doc(ds.del).delete()); return; }
+  if (ds.mover){ escribir(() => S.db.collection("personal").doc(ds.mover).update({dia:S.fecha})); return; }
+  if (ds.llego){
+    const p = S.personal.find(x=>x.id===ds.llego), v = ds.val==="1";
+    const nuevo = p.llego === v ? null : v;
+    escribir(() => S.db.collection("personal").doc(p.id).update({ llego:nuevo, llegoAt: nuevo===null?null:ahora(), llegoPor: nuevo===null?null:S.uid }));
+    return;
+  }
+  if (ds.enviar){
+    const o = ds.enviar, nota = $("despNota-"+o)?.value.trim() || "";
+    escribir(() => upsert("despacho", docId(o), { dia:S.fecha, origen:o, enviado:{ at:ahora(), por:S.uid, nota, huella:dia()[ORIGEN[o].huella] } }));
+    return;
+  }
+  if (ds.reabrir){ escribir(() => upsert("despacho", docId(ds.reabrir), { enviado:null })); return; }
+  if (ds.reabrirrec){ escribir(() => upsert("recepcion", docId(ds.reabrirrec), { recibido:null })); return; }
+  if (ds.recdif){
+    const on = !ds.off;
+    escribir(() => upsert("recepcion", docId(S.origen), { dia:S.fecha, origen:S.origen, items:{ [ds.recdif]: on ? {dif:true, ok:false} : {dif:false, cant:null, nota:null} } }));
+    return;
+  }
+  if (ds.recibir){ escribir(() => upsert("recepcion", docId(ds.recibir), { dia:S.fecha, origen:ds.recibir, recibido:{ at:ahora(), por:S.uid } })); return; }
+});
+
+document.addEventListener("change", e => {
+  const t = e.target, ds = t.dataset;
+  if (t.id === "dia"){ S.fecha = t.value; S.borrar = null; render(); window.scrollTo({top:0}); return; }
+  if (ds.eq !== undefined){
+    const e = S.equipo.personas[+ds.eq], p = personasDia().find(x => normN(x.nombre) === normN(e.nombre));
+    if (t.checked && !p){
+      const area = $("eqa-"+ds.eq).value, tel = normTel(e.telefono) || e.telefono;
+      recordarArea(e, area);
+      escribir(() => S.db.collection("personal").add({ dia:S.fecha, nombre:e.nombre, telefono:tel, area, creadoAt:ahora(), creadoPor:S.uid, llego:null }));
+    } else if (!t.checked && p){
+      if (p.llego !== null && p.llego !== undefined){ render(); flash(`${e.nombre} ya tiene asistencia marcada. Quítala desde Asistencia si hay que sacarla.`); return; }
+      escribir(() => S.db.collection("personal").doc(p.id).delete());
+    }
+    return;
+  }
+  if (ds.eqarea !== undefined){
+    const e = S.equipo.personas[+ds.eqarea], p = personasDia().find(x => normN(x.nombre) === normN(e.nombre));
+    S.areaSel[e.nombre] = t.value; recordarArea(e, t.value);
+    if (p) escribir(() => S.db.collection("personal").doc(p.id).update({ area:t.value }));
+    return;
+  }
+  const dd = docId(S.vista === "recepcion" ? S.origen : S.vista), base = { dia:S.fecha, origen: S.vista === "recepcion" ? S.origen : S.vista };
+  if (ds.desp) escribir(() => upsert("despacho", dd, { ...base, items:{ [ds.desp]: { ok:t.checked, at:ahora(), por:S.uid } } }));
+  if (ds.rec)  escribir(() => upsert("recepcion", dd, { ...base, items:{ [ds.rec]: { ok:t.checked, dif:false, at:ahora(), por:S.uid } } }));
+  if (ds.recq) escribir(() => upsert("recepcion", dd, { items:{ [ds.recq]: { cant:t.value.trim() } } }));
+  if (ds.recn) escribir(() => upsert("recepcion", dd, { items:{ [ds.recn]: { nota:t.value.trim() } } }));
+});
+
+// ---------- arranque ----------
+const h = (location.hash||"").slice(1);
+if (VISTAS.includes(h)) S.vista = h;
+render();
+
+// ---------- datos: Supabase (tabla docs: coleccion, id, data) ----------
+const SB_URL = "https://chxvaplyfpyerokgeceq.supabase.co", SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoeHZhcGx5ZnB5ZXJva2dlY2VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1NzIyMDksImV4cCI6MjExMDE0ODIwOX0.ePGDLoaBE0bbY27hwr_liflF4bAHaG1zDwAQEcFsv5M";
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const mezclar = (a, b) => { const o = { ...(a||{}) }; for (const k in b){ o[k] = (o[k] && b[k] && typeof o[k]==="object" && typeof b[k]==="object" && !Array.isArray(o[k]) && !Array.isArray(b[k])) ? mezclar(o[k], b[k]) : b[k]; } return o; };
+function crearDb(){
+  const cache = {}, subs = [];
+  const aviso = col => subs.filter(x => x.col === col).forEach(x => x.cb());
+  const falla = e => { const er = new Error(e.message || "error"); er.code = (e.code === "42501" || e.status === 401 || e.status === 403) ? "invalid_argument" : e.code; throw er; };
+  const poner = (col, id, data) => { (cache[col] ||= {})[id] = data; aviso(col); };
+  const quitar = (col, id) => { if (cache[col]) delete cache[col][id]; aviso(col); };
+  sb.channel("docs").on("postgres_changes", { event:"*", schema:"public", table:"docs" }, p => {
+    if (p.eventType === "DELETE") quitar(p.old.coleccion, p.old.id); else poner(p.new.coleccion, p.new.id, p.new.data);
+  }).subscribe();
+  const cargar = async () => {
+    const { data, error } = await sb.from("docs").select("coleccion,id,data");
+    if (error) throw error;
+    data.forEach(r => (cache[r.coleccion] ||= {})[r.id] = r.data);
+    Object.keys(cache).forEach(aviso);
+  };
+  const colSnap = col => ({ docs: Object.entries(cache[col]||{}).map(([id,d]) => ({ id, data: () => d })) });
+  const docSnap = (col, id) => { const d = cache[col]?.[id]; return { exists: !!d, data: () => d }; };
+  const ref = (col, id) => ({
+    update: async p => { poner(col, id, mezclar(cache[col]?.[id], p)); const { error } = await sb.rpc("doc_actualizar", { p_col:col, p_id:id, p_parche:p }); if (error) { await cargar(); falla(error); } },
+    set: async d => { poner(col, id, d); const { error } = await sb.from("docs").upsert({ coleccion:col, id, data:d }); if (error) { await cargar(); falla(error); } },
+    delete: async () => { quitar(col, id); const { error } = await sb.from("docs").delete().eq("coleccion",col).eq("id",id); if (error) { await cargar(); falla(error); } },
+  });
+  return {
+    cargar,
+    doc: path => { const [col, id] = path.split("/"); return { onSnapshot: (cb) => { subs.push({ col, cb: () => cb(docSnap(col, id)) }); cb(docSnap(col, id)); } }; },
+    collection: col => ({
+      onSnapshot: (cb) => { subs.push({ col, cb: () => cb(colSnap(col)) }); cb(colSnap(col)); },
+      add: async d => { const id = crypto.randomUUID(); await ref(col, id).set(d); return { id }; },
+      doc: id => ref(col, id),
+    }),
+  };
+}
+let PERFILES = {};
+const userApi = { id: async () => (await sb.auth.getUser()).data.user.id, can: async () => (PERFILES[await userApi.id()]?.rol === "editor"),
+  profiles: async ids => Object.fromEntries(ids.map(i => [i, { name: PERFILES[i]?.nombre || "" }])) };
+
+async function entrar(){
+  const { data: { session } } = await sb.auth.getSession();
+  $("login").hidden = !!session; $("app").hidden = !session; $("salir").hidden = !session;
+  if (!session) return;
+  const { data: perf } = await sb.from("perfiles").select("id,nombre,rol");
+  PERFILES = Object.fromEntries((perf||[]).map(p => [p.id, p]));
+  const yo = PERFILES[session.user.id];
+  if (!yo){ $("app").hidden = true; $("login").hidden = false; $("lMsg").textContent = "Este usuario no tiene acceso a la app."; await sb.auth.signOut(); return; }
+  $("quienSoy").textContent = "Sesión: " + yo.nombre + (yo.rol === "lector" ? " (solo lectura)" : "");
+  S.user = userApi; S.uid = session.user.id; S.puede = yo.rol === "editor";
+  const db = crearDb(); S.db = db;
+  try { await db.cargar(); } catch(e){ console.error(e); S.db = false; render(); return; }
+  iniciar(db);
+}
+$("fLogin").addEventListener("submit", async e => {
+  e.preventDefault(); $("lMsg").textContent = "Entrando…";
+  const u = $("lUsuario").value.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"");
+  const { error } = await sb.auth.signInWithPassword({ email: u + "@axiomania.app", password: $("lClave").value });
+  if (error){ $("lMsg").textContent = "Usuario o clave incorrectos."; return; }
+  $("lClave").value = ""; $("lMsg").textContent = ""; entrar();
+});
+$("salir").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
+entrar();
+
+function iniciar(db){
+  db.doc("plan/vigente").onSnapshot(s => {
+    if (!s.exists){ S.plan = null; $("estado").innerHTML = `<div class="card empty">El plan de eventos todavía no está cargado. Pídele a Pablo que lo cargue desde el archivo de compras.</div>`; return; }
+    S.plan = s.data();
+    if (!S.fecha || !S.plan.dias.some(d=>d.fecha===S.fecha)) S.fecha = proximaFecha();
+    render();
+  }, err => console.error(err));
+  db.doc("equipo/ultimas").onSnapshot(s => { S.ultimas = s.exists ? s.data() : {}; render(); }, err => console.error(err));
+  db.doc("equipo/vigente").onSnapshot(s => { S.equipo = s.exists ? s.data() : false; render(); }, err => { S.equipo = false; console.error(err); });
+  db.collection("personal").onSnapshot(s => { S.personal = s.docs.map(d => ({id:d.id, ...d.data()})); render(); }, err => console.error(err));
+  db.collection("despacho").onSnapshot(s => { S.desp = Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); render(); }, err => console.error(err));
+  db.collection("recepcion").onSnapshot(s => { S.rec = Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); render(); }, err => console.error(err));
+  db.collection("stock").onSnapshot(s => { S.stock = Object.fromEntries(s.docs.map(d=>[d.id,d.data()])); render(); }, err => console.error(err));
+}
+</script>
