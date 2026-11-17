@@ -245,7 +245,7 @@ const AREAS = ["Hamburguesas","Hot dog","Pizza","Empanadas","Fríos","Horneo y a
 // Un día especial (ej. limpieza y capacitación, 18-nov) trae su propia área en el plan: solo aparece ese día
 // y nunca queda como "última estación" de nadie.
 const areasDe = d => [...AREAS, ...Object.keys(d?.dotacion || {}).filter(a => !AREAS.includes(a))];
-const S = { plan:null, personal:[], desp:{}, rec:{}, stock:{}, fecha:null, vista:"fiestas", origen:"bendito", uid:null, puede:true, db:null, user:null, nombres:{}, equipo:null, eqFiltro:"todos", areaSel:{}, ultimas:{} };
+const S = { plan:null, personal:[], desp:{}, rec:{}, stock:{}, fecha:null, vista:"fiestas", origen:"bendito", uid:null, puede:true, puedeDesp:true, db:null, user:null, nombres:{}, equipo:null, eqFiltro:"todos", areaSel:{}, ultimas:{} };
 const VISTAS = ["fiestas","dotacion","asistencia","bendito","exponor","recepcion","stock"];
 const ORIGEN = {
   bendito: { titulo:"Despacho Bendito", lista:"bendito", huella:"huella_bendito",
@@ -306,7 +306,7 @@ function renderCabecera(){
   const d = dia(), max = Math.max(...d.fiestas.map(f=>f.personas));
   $("fiestas").innerHTML = d.fiestas.map(f => `<div class="fiesta ${d.fiestas.length>1 && f.personas===max ? "max":""}">
       <b>${esc(f.empresa)}</b><span class="small">${esc(f.horario)} · ${f.nota ? esc(f.nota) : nf.format(f.personas)+" personas"}${d.fiestas.length>1 && f.personas===max ? " · fiesta más grande":""}</span></div>`).join("");
-  $("estado").innerHTML = S.puede ? "" : `<div class="banner info">Tienes acceso de solo lectura: puedes ver todo, pero no registrar.</div>`;
+  $("estado").innerHTML = S.puede ? "" : S.puedeDesp ? `<div class="banner info">Puedes registrar los envíos de Bendito y Exponor. El resto es solo para mirar.</div>` : `<div class="banner info">Tienes acceso de solo lectura: puedes ver todo, pero no registrar.</div>`;
 }
 
 function renderPie(){
@@ -532,14 +532,14 @@ function renderDesp(o){
   const G = grupos(lista);
   $("despGrupos").innerHTML = n ? Object.keys(G).map(g => `<div class="card"><h3>${esc(g)}</h3><div>
     ${G[g].map(it => { const m = marc[it.k]; return `<label class="item ${m?.ok?"done":""}">
-      <input type="checkbox" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${(!S.puede||env)?"disabled":""}>
+      <input type="checkbox" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${(!S.puedeDesp||env)?"disabled":""}>
       ${lineaItem(it)}</label>`}).join("")}</div></div>`).join("")
     : `<div class="card empty">Este día no hay nada en ${O.titulo.toLowerCase()}.</div>`;
   $("despConfirm").innerHTML = env
     ? `<div class="banner ok">${O.hecho} ${esc(fmtHora(env.at))}${env.por?" · confirmó "+esc(quien(env.por)):""}.${env.nota?" Nota: "+esc(env.nota):""}</div>
-       ${S.puede?`<div class="confirm"><button data-reabrir="${o}">Reabrir</button><span class="small">Úsalo solo si hay que corregir.</span></div>`:""}`
+       ${S.puedeDesp?`<div class="confirm"><button data-reabrir="${o}">Reabrir</button><span class="small">Úsalo solo si hay que corregir.</span></div>`:""}`
     : `<label class="f">Nota para quien recibe (opcional)<input id="despNota-${o}" maxlength="200" placeholder="Ej: el tomate en cubos va en las cajas azules"></label>
-       <div class="confirm"><button class="primary" data-enviar="${o}" ${(n && ok===n && S.puede)?"":"disabled"}>${O.accion}</button>
+       <div class="confirm"><button class="primary" data-enviar="${o}" ${(n && ok===n && S.puedeDesp)?"":"disabled"}>${O.accion}</button>
        <span class="small">${!n ? "" : ok===n ? "Todo listo." : `Marca los ${n-ok} ítems que faltan para poder confirmar.`}</span></div>`;
 }
 
@@ -600,7 +600,7 @@ function proximaFecha(){
 async function escribir(fn){
   try { await fn(); }
   catch(e){
-    if (e?.code === "invalid_argument"){ S.puede = false; render(); }
+    if (e?.code === "invalid_argument"){ S.puede = false; S.puedeDesp = false; render(); }
     else flash("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.");
     console.error(e);
   }
@@ -750,8 +750,8 @@ async function entrar(){
   PERFILES = Object.fromEntries((perf||[]).map(p => [p.id, p]));
   const yo = PERFILES[session.user.id];
   if (!yo){ $("app").hidden = true; $("login").hidden = false; $("lMsg").textContent = "Este usuario no tiene acceso a la app."; await sb.auth.signOut(); return; }
-  $("quienSoy").textContent = "Sesión: " + yo.nombre + (yo.rol === "lector" ? " (solo lectura)" : "");
-  S.user = userApi; S.uid = session.user.id; S.puede = yo.rol === "editor";
+  $("quienSoy").textContent = "Sesión: " + yo.nombre + (yo.rol === "lector" ? " (solo lectura)" : yo.rol === "despacho" ? " (envíos)" : "");
+  S.user = userApi; S.uid = session.user.id; S.puede = yo.rol === "editor"; S.puedeDesp = yo.rol === "editor" || yo.rol === "despacho";
   const db = crearDb(); S.db = db;
   try { await db.cargar(); } catch(e){ console.error(e); S.db = false; render(); return; }
   iniciar(db);
