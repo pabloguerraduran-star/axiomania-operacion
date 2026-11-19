@@ -457,6 +457,11 @@ const STOCK_BENDITO = new Set(["CARNE_PARA_CHURRASQUEAR_LAMINADO_DELGADO"]);
 const REND = { CARNE_PARA_CHURRASQUEAR_LAMINADO_DELGADO: 0.7, PALTA: 0.65 };
 // Palta: rendimiento 65% (molida/sellada/congelada), PROYECCION fila 73; plan = kg de compra (bruto), producción anotada = kg molidos netos.
 const NETO_TXT = { PALTA: ["kg neto (molida)", "kg de compra (bruta)"] };
+// Unidades equivalentes: el plan y el stock siguen en la unidad base (kg); acá solo se muestra
+// cuántas piezas son. g = gramos por pieza. Salchichas: 50 g (pedido de Pablo, 19-nov-2026).
+const UNID = { SALCHICHAS: { g: 50, txt: "unid." } };
+const aUnid = (k, cant, um) => UNID[k] && String(um).toUpperCase() === "KG" ? Math.round(cant * 1000 / UNID[k].g) : null;
+const unidTxt = (k, cant, um) => { const n = aUnid(k, cant, um); return n == null ? "" : `<br><span class="det">≈ ${nf.format(n)} ${UNID[k].txt} de ${UNID[k].g} g</span>`; };
 const suma = (a, f) => a.reduce((t, x) => t + (+x[f] || 0), 0);
 function stockFilas(){
   const C = {}, LISTAS = [];   // [origen, lista] de cada día que lleva stock
@@ -468,7 +473,8 @@ function stockFilas(){
     const c = C[it.k] ||= { k:it.k, insumo:it.insumo, detalle:it.detalle || "", um:it.um, grupo:it.grupo, plan:0, porDia:{} };
     c.plan += it.cant; c.porDia[d.fecha] = (c.porDia[d.fecha] || 0) + it.cant;
   }
-  const ent = [...(S.stock.produccion?.movs || []), ...(S.stock.facturas?.movs || [])];
+  const ent = [...(S.stock.produccion?.movs || []), ...(S.stock.facturas?.movs || [])]
+    .map(m => m.cant_unid != null && UNID[m.k] ? { ...m, cant: m.cant_unid * UNID[m.k].g / 1000, nota: (m.nota ? m.nota + " · " : "") + nf.format(m.cant_unid) + " " + UNID[m.k].txt } : m);
   const sal = {};
   for (const [o, d, lista] of LISTAS){
     const marc = S.desp[d.fecha + "_" + o]?.items; if (!marc) continue;
@@ -510,7 +516,7 @@ function renderStock(){
       const movs = [...f.e.map(m => ({ fecha:m.fecha, t:m.tipo === "factura" ? "Factura" : "Producción", cant:m.cant, nota:m.nota || m.ref || "", mas:true })),
                     ...f.s.map(m => ({ fecha:m.fecha, t:"Salió de bodega", cant:m.cant, nota:"", mas:false }))].sort((a,b) => a.fecha.localeCompare(b.fecha));
       return `<div class="stk">
-        <span class="name"><b>${esc(f.insumo)}</b>${f.detalle ? `<br><span class="small">${esc(f.detalle)}</span>` : ""}</span>
+        <span class="name"><b>${esc(f.insumo)}</b>${f.detalle ? `<br><span class="small">${esc(f.detalle)}</span>` : ""}${aUnid(f.k, 1, f.um) != null ? `<br><span class="small">≈ ${f.e.length ? nf.format(aUnid(f.k, f.saldo, f.um)) : "–"} ${UNID[f.k].txt} en saldo · plan ≈ ${nf.format(aUnid(f.k, f.plan, f.um))} (de ${UNID[f.k].g} g)</span>` : ""}</span>
         <span class="q">${f.e.length ? nf.format(f.saldo) : "–"}<small>${esc(f.um.toLowerCase())}</small></span>
         <span class="sub"><span>Entró <b>${nf.format(f.te)}</b></span><span>Salió <b>${nf.format(f.ts)}</b></span><span>Plan temporada <b>${nf.format(f.plan)}</b></span></span>
         ${f.r !== 1 ? `<span class="sub"><span>Cantidades en <b>${(NETO_TXT[f.k]||["kg neto (cortado y cocinado)"])[0]}</b>. Equivale a ${(NETO_TXT[f.k]||[0,"kg bruto (crudo)"])[1]}, rendimiento ${nf.format(f.r*100)}%):</span><span>saldo <b>${f.e.length ? nf.format(f.saldo/f.r) : "–"}</b></span><span>entró <b>${nf.format(f.te/f.r)}</b></span><span>salió <b>${nf.format(f.ts/f.r)}</b></span><span>plan <b>${nf.format(f.plan/f.r)}</b></span></span>` : ""}
@@ -520,7 +526,7 @@ function renderStock(){
 }
 
 function lineaItem(it, extra){
-  return `<span class="name"><b>${esc(it.insumo)}</b>${it.detalle?`<br><span class="det">${esc(it.detalle)}</span>`:""}</span>
+  return `<span class="name"><b>${esc(it.insumo)}</b>${it.detalle?`<br><span class="det">${esc(it.detalle)}</span>`:""}${unidTxt(it.k, it.cant, it.um)}</span>
       <span class="q">${nf.format(it.cant)}<small>${esc(it.um.toLowerCase())}</small></span>${extra||""}
       ${it.aviso?`<span class="aviso">⚠ ${esc(it.aviso)}</span>`:""}`;
 }
