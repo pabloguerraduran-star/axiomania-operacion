@@ -106,6 +106,7 @@ button.quitar.si{background:var(--bad);color:var(--surface)}
 .item.done .name{color:var(--muted);text-decoration:line-through}
 .eq{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .eq:last-child{border-bottom:0}
+.eqh{font-weight:700;padding:14px 0 6px;border-bottom:2px solid var(--line);color:var(--ink)}.eqh.libre{color:var(--muted)}
 .eq input[type=checkbox]{width:28px;height:28px;min-height:0;accent-color:var(--ok)}
 .eq .who{min-width:0}.eq .who b{display:block;overflow-wrap:anywhere}
 .eq select{max-width:190px}
@@ -380,7 +381,7 @@ function renderEquipo(d, ps, porArea){
   $("eqResumen").innerHTML = `<b>${ps.length}</b> asignadas de <b>${req}</b> requeridas · ${nSel} del equipo de ${E.length}${extras ? ` + ${extras} fuera de la lista` : ""} · ${E.length - nSel} sin seleccionar. Marca a cada persona y elige su estación.`;
   const AR = areasDe(d), sug = AR.find(a => (d.dotacion[a]||0) > porArea(a)) || AREAS[0];
   const lista = E.map((e,i) => ({e, i, p: deDia.get(normN(e.nombre))})).filter(x => S.eqFiltro==="sel" ? x.p : S.eqFiltro==="libres" ? !x.p : true);
-  $("eqLista").innerHTML = lista.length ? lista.map(({e,i,p}) => {
+  const fila = ({e,i,p}) => {
     const area = p ? p.area : (d.area_unica || areaPara(e, sug));
     const tel = normTel(e.telefono) || e.telefono;
     return `<div class="eq ${p?"on":""}">
@@ -388,7 +389,13 @@ function renderEquipo(d, ps, porArea){
       <label class="who" for="eqc-${i}"><b>${esc(e.nombre)}</b><span class="small">${esc(tel)}${e.area_fija?" · estación fija":""}${p?.llego===true?" · llegó":""}</span></label>
       <select id="eqa-${i}" data-eqarea="${i}" aria-label="Estación de ${esc(e.nombre)}" ${S.puede?"":"disabled"}>
         ${AR.map(a => `<option value="${a}" ${a===area?"selected":""}>${a}${d.dotacion[a] ? ` (${porArea(a)}/${d.dotacion[a]})` : " (no se usa)"}</option>`).join("")}
-      </select></div>`; }).join("") : `<div class="empty">Nadie en este filtro.</div>`;
+      </select></div>`; };
+  // Agrupado por estación (pedido de Pablo, 19-nov): primero cada estación con sus personas, al final las sin seleccionar.
+  const grupos = [...AR, ...[...new Set(lista.filter(x => x.p).map(x => x.p.area))].filter(a => !AR.includes(a))]
+    .map(a => ({ t: a, req: d.dotacion[a] || 0, xs: lista.filter(x => x.p && x.p.area === a) })).filter(g => g.xs.length);
+  const libres = lista.filter(x => !x.p);
+  if (libres.length) grupos.push({ t: "Sin seleccionar", req: 0, xs: libres, libre: true });
+  $("eqLista").innerHTML = lista.length ? grupos.map(g => `<div class="eqh${g.libre?" libre":""}">${esc(g.t)} <span class="small">${g.xs.length}${g.req ? ` de ${g.req} requeridas` : ""}</span></div>` + g.xs.map(fila).join("")).join("") : `<div class="empty">Nadie en este filtro.</div>`;
 }
 
 function renderAsis(){
