@@ -115,6 +115,10 @@ button.quitar.si{background:var(--bad);color:var(--surface)}
 .areas tfoot td{font-weight:700;border-bottom:0}
 .diff{grid-column:2/-1;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .diff input{width:120px}
+.real{grid-column:2/-1;display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;font-size:.88rem;color:var(--muted)}
+.real label{display:inline-flex;gap:5px;align-items:center}
+.real input{width:92px}
+.real .eq2{white-space:nowrap}
 .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok)}
 .confirm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -463,6 +467,21 @@ const UNID = { SALCHICHAS: { g: 50, txt: "unid." } };
 const aUnid = (k, cant, um) => UNID[k] && String(um).toUpperCase() === "KG" ? Math.round(cant * 1000 / UNID[k].g) : null;
 const unidTxt = (k, cant, um) => { const n = aUnid(k, cant, um); return n == null ? "" : `<br><span class="det">≈ ${nf.format(n)} ${UNID[k].txt} de ${UNID[k].g} g</span>`; };
 const unidQ = (k, cant, um) => { const n = aUnid(k, cant, um); return n == null ? "" : `<small style="display:block;margin:2px 0 0;font-size:.85rem">≈ ${nf.format(n)} ${UNID[k].txt}</small>`; };
+// Empaque por el que se puede sacar un ítem: b = cuánto trae cada caja/bolsa, en la unidad base del plan
+// (salchichas en kg: caja 6x1 kg, factura Productos Fernández 042120105; pizzas: caja de 16, factura 042127282;
+// hamburguesas: bolsa de 25 unidades, dato de Pablo 20-nov-2026).
+const PACK = {
+  SALCHICHAS: { n:"caja", pl:"cajas", b:6 },
+  PIZZA_CONGELADA_PF: { n:"caja", pl:"cajas", b:16 },
+  HAMBURGUESA_VACUNO: { n:"bolsa", pl:"bolsas", b:25 },
+  HAMBURGUESA_VACUNO_150_GRS: { n:"bolsa", pl:"bolsas", b:25 },
+  HAMBURGUESA_VACUNO_185_GRS: { n:"bolsa", pl:"bolsas", b:25 },
+};
+const nf2 = new Intl.NumberFormat("es-CL",{maximumFractionDigits:2});
+const aInput = v => v == null || v === "" ? "" : String(Math.round(v * 100) / 100).replace(".", ",");
+const deInput = t => { const x = String(t).trim().replace(",", "."); if (x === "") return null; const n = Number(x); return Number.isFinite(n) && n >= 0 ? n : NaN; };
+// Lo que realmente se sacó (anotado a mano en Despacho); si nadie lo corrigió, vale el plan.
+const sacado = (marc, it) => marc?.[it.k]?.cant != null && marc[it.k].cant !== "" ? +marc[it.k].cant : it.cant;
 const suma = (a, f) => a.reduce((t, x) => t + (+x[f] || 0), 0);
 function stockFilas(){
   const C = {}, LISTAS = [];   // [origen, lista] de cada día que lleva stock
@@ -479,7 +498,7 @@ function stockFilas(){
   const sal = {};
   for (const [o, d, lista] of LISTAS){
     const marc = S.desp[d.fecha + "_" + o]?.items; if (!marc) continue;
-    for (const it of lista) if (marc[it.k]?.ok) (sal[it.k] ||= []).push({ fecha:d.fecha, cant:it.cant });
+    for (const it of lista) if (marc[it.k]?.ok) (sal[it.k] ||= []).push({ fecha:d.fecha, cant:sacado(marc, it) });
   }
   for (const m of ent) if (!C[m.k]) C[m.k] = { k:m.k, insumo:m.insumo || m.k, detalle:"", um:m.um || "", grupo:"Otros", plan:0, porDia:{} };
   return Object.values(C).map(c => {
@@ -526,9 +545,10 @@ function renderStock(){
       </div>`; }).join("")}</div></div>`).join("");
 }
 
-function lineaItem(it, extra){
+function lineaItem(it, extra, cant){
+  const c = cant ?? it.cant;
   return `<span class="name"><b>${esc(it.insumo)}</b>${it.detalle?`<br><span class="det">${esc(it.detalle)}</span>`:""}</span>
-      <span class="q">${nf.format(it.cant)}<small>${esc(it.um.toLowerCase())}</small>${unidQ(it.k, it.cant, it.um)}</span>${extra||""}
+      <span class="q">${nf2.format(c)}<small>${esc(it.um.toLowerCase())}</small>${unidQ(it.k, c, it.um)}</span>${extra||""}
       ${it.aviso?`<span class="aviso">⚠ ${esc(it.aviso)}</span>`:""}`;
 }
 
@@ -545,9 +565,17 @@ function renderDesp(o){
     <div class="small">${d.area_unica ? (o === "bendito" ? "Día sin fiesta: solo aseo y limpieza de la bodega de Bendito. Marca cada ítem cuando esté arriba del camión." : "Día sin fiesta: no sale nada de la bodega de Exponor.") : O.ayuda}</div>`;
   const G = grupos(lista);
   $("despGrupos").innerHTML = n ? Object.keys(G).map(g => `<div class="card"><h3>${esc(g)}</h3><div>
-    ${G[g].map(it => { const m = marc[it.k]; return `<label class="item ${m?.ok?"done":""}">
-      <input type="checkbox" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${(!S.puedeDesp||env)?"disabled":""}>
-      ${lineaItem(it)}</label>`}).join("")}</div></div>`).join("")
+    ${G[g].map(it => { const m = marc[it.k], bloq = !S.puedeDesp || !!env, real = sacado(marc, it), edit = m?.cant != null && m.cant !== "", pk = PACK[it.k], dif = real - it.cant;
+      const planPk = pk && it.um && ["KG","UND"].includes(String(it.um).toUpperCase()) ? ` (≈ ${nf2.format(it.cant / pk.b)} ${pk.pl})` : "";
+      return `<div class="item ${m?.ok?"done":""}">
+      <input type="checkbox" aria-label="Fuera de bodega" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${bloq?"disabled":""}>
+      ${lineaItem(it, `<div class="real">
+        <span>Debe sacar <b>${nf2.format(it.cant)} ${esc(it.um.toLowerCase())}</b>${planPk}</span>
+        <label>Sacó <input inputmode="decimal" id="sq-${esc(it.k)}" data-sacq="${esc(it.k)}" placeholder="${aInput(it.cant)}" value="${edit ? aInput(m.cant) : ""}" ${bloq?"disabled":""}> ${esc(it.um.toLowerCase())}</label>
+        ${pk ? `<label>o en ${pk.pl} <input inputmode="decimal" id="sp-${esc(it.k)}" data-sacp="${esc(it.k)}" placeholder="${aInput(it.cant / pk.b)}" value="${edit ? aInput(m.cant / pk.b) : ""}" ${bloq?"disabled":""}></label>
+          <span class="eq2">1 ${pk.n} = ${nf2.format(pk.b)} ${esc(it.um.toLowerCase())}${it.k === "SALCHICHAS" ? ` (${nf.format(pk.b * 1000 / UNID.SALCHICHAS.g)} unid.)` : ""}</span>` : ""}
+        ${edit ? `<span class="pill ${Math.abs(dif) < 0.005 ? "ok" : "warn"}">${Math.abs(dif) < 0.005 ? "Igual al plan" : (dif > 0 ? "+" : "−") + nf2.format(Math.abs(dif)) + " " + esc(it.um.toLowerCase()) + " vs plan"}</span>` : ""}
+      </div>`, real)}</div>`}).join("")}</div></div>`).join("")
     : `<div class="card empty">Este día no hay nada en ${O.titulo.toLowerCase()}.</div>`;
   $("despConfirm").innerHTML = env
     ? `<div class="banner ok">${O.hecho} ${esc(fmtHora(env.at))}${env.por?" · confirmó "+esc(quien(env.por)):""}.${env.nota?" Nota: "+esc(env.nota):""}</div>
@@ -559,7 +587,7 @@ function renderDesp(o){
 
 function renderRec(o){
   const O = ORIGEN[o], d = dia(), lista = d[O.lista] || [];
-  const env = (S.desp[docId(o)]||{}).enviado, doc = S.rec[docId(o)] || {}, marc = doc.items || {}, rec = doc.recibido;
+  const env = (S.desp[docId(o)]||{}).enviado, envMarc = (S.desp[docId(o)]||{}).items, doc = S.rec[docId(o)] || {}, marc = doc.items || {}, rec = doc.recibido;
   const n = lista.length;
   const conDif = lista.filter(it => marc[it.k]?.dif);
   const ok = lista.filter(it => marc[it.k]?.ok).length;
@@ -577,11 +605,11 @@ function renderRec(o){
   $("recGrupos").innerHTML = n ? Object.keys(G).map(g => `<div class="card"><h3>${esc(g)}</h3><div>
     ${G[g].map(it => { const k = it.k, m = marc[k] || {}; return `<div class="item ${m.ok?"done":""}">
       <input type="checkbox" aria-label="Llegó completo" data-rec="${esc(k)}" ${m.ok?"checked":""} ${bloq?"disabled":""}>
-      ${lineaItem(it, `<div class="diff">${m.dif
+      ${lineaItem(it, `${envMarc?.[k]?.cant != null && envMarc[k].cant !== "" && Math.abs(+envMarc[k].cant - it.cant) > 0.005 ? `<span class="aviso" style="color:var(--muted)">Plan ${nf2.format(it.cant)} ${esc(it.um.toLowerCase())}; en el despacho se anotó que salieron ${nf2.format(+envMarc[k].cant)}.</span>` : ""}<div class="diff">${m.dif
         ? `<label class="small" for="rq-${o}-${esc(k)}">Llegó:</label><input id="rq-${o}-${esc(k)}" inputmode="decimal" data-recq="${esc(k)}" value="${esc(m.cant ?? "")}" ${bloq?"disabled":""}>
            <input id="rn-${o}-${esc(k)}" data-recn="${esc(k)}" placeholder="Nota" maxlength="120" value="${esc(m.nota ?? "")}" ${bloq?"disabled":""} style="flex:1 1 140px">
            ${bloq?"":`<button class="link" data-recdif="${esc(k)}" data-off="1">Quitar diferencia</button>`}`
-        : (bloq || m.ok ? "" : `<button class="link" data-recdif="${esc(k)}">Diferencia</button>`)}</div>`)}</div>`}).join("")}</div></div>`).join("")
+        : (bloq || m.ok ? "" : `<button class="link" data-recdif="${esc(k)}">Diferencia</button>`)}</div>`, sacado(envMarc, it))}</div>`}).join("")}</div></div>`).join("")
     : `<div class="card empty">Este día no hay nada que recibir desde ${o === "bendito" ? "Bendito" : "la bodega"}.</div>`;
   $("recConfirm").innerHTML = rec
     ? `<div class="banner ok">Recepción confirmada ${esc(fmtHora(rec.at))}${rec.por?" por "+esc(quien(rec.por)):""}. ${conDif.length? conDif.length+" ítems con diferencia.":"Todo llegó completo."}</div>
@@ -705,6 +733,14 @@ document.addEventListener("change", e => {
     return;
   }
   const dd = docId(S.vista === "recepcion" ? S.origen : S.vista), base = { dia:S.fecha, origen: S.vista === "recepcion" ? S.origen : S.vista };
+  if (ds.sacq !== undefined || ds.sacp !== undefined){
+    const k = ds.sacq ?? ds.sacp, v = deInput(t.value), it = (dia()[ORIGEN[S.vista]?.lista] || []).find(x => x.k === k), pk = PACK[k];
+    if (Number.isNaN(v)){ flash("Escribe un número (ej. 12 o 12,5)."); render(); return; }
+    if (!it){ return; }
+    const cant = v == null ? null : ds.sacp !== undefined ? Math.round(v * pk.b * 1000) / 1000 : v;
+    escribir(() => upsert("despacho", dd, { ...base, items:{ [k]: { cant, cantAt:ahora(), cantPor:S.uid } } }));
+    return;
+  }
   if (ds.desp) escribir(() => upsert("despacho", dd, { ...base, items:{ [ds.desp]: { ok:t.checked, at:ahora(), por:S.uid } } }));
   if (ds.rec)  escribir(() => upsert("recepcion", dd, { ...base, items:{ [ds.rec]: { ok:t.checked, dif:false, at:ahora(), por:S.uid } } }));
   if (ds.recq) escribir(() => upsert("recepcion", dd, { items:{ [ds.recq]: { cant:t.value.trim() } } }));
