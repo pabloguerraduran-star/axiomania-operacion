@@ -498,7 +498,7 @@ function stockFilas(){
   const sal = {};
   for (const [o, d, lista] of LISTAS){
     const marc = S.desp[d.fecha + "_" + o]?.items; if (!marc) continue;
-    for (const it of lista) if (marc[it.k]?.ok) (sal[it.k] ||= []).push({ fecha:d.fecha, cant:sacado(marc, it) });
+    for (const it of lista) if (marc[it.k]?.ok || (marc[it.k]?.cant != null && marc[it.k].cant !== "")) (sal[it.k] ||= []).push({ fecha:d.fecha, cant:sacado(marc, it) });
   }
   for (const m of ent) if (!C[m.k]) C[m.k] = { k:m.k, insumo:m.insumo || m.k, detalle:"", um:m.um || "", grupo:"Otros", plan:0, porDia:{} };
   return Object.values(C).map(c => {
@@ -571,9 +571,9 @@ function renderDesp(o){
       <input type="checkbox" aria-label="Fuera de bodega" data-desp="${esc(it.k)}" ${m?.ok?"checked":""} ${bloq?"disabled":""}>
       ${lineaItem(it, `<div class="real">
         <span>Debe sacar <b>${nf2.format(it.cant)} ${esc(it.um.toLowerCase())}</b>${planPk}</span>
-        <label>Sacó <input inputmode="decimal" id="sq-${esc(it.k)}" data-sacq="${esc(it.k)}" placeholder="${aInput(it.cant)}" value="${edit ? aInput(m.cant) : ""}" ${bloq?"disabled":""}> ${esc(it.um.toLowerCase())}</label>
-        ${pk ? `<label>o en ${pk.pl} <input inputmode="decimal" id="sp-${esc(it.k)}" data-sacp="${esc(it.k)}" placeholder="${aInput(it.cant / pk.b)}" value="${edit ? aInput(m.cant / pk.b) : ""}" ${bloq?"disabled":""}></label>
-          <span class="eq2">1 ${pk.n} = ${nf2.format(pk.b)} ${esc(it.um.toLowerCase())}${it.k === "SALCHICHAS" ? ` (${nf.format(pk.b * 1000 / UNID.SALCHICHAS.g)} unid.)` : ""}</span>` : ""}
+        ${pk ? `<label><b>Sacó en ${pk.pl}</b> <input inputmode="decimal" id="sp-${esc(it.k)}" data-sacp="${esc(it.k)}" placeholder="${aInput(it.cant / pk.b)}" value="${edit ? aInput(m.cant / pk.b) : ""}" ${bloq?"disabled":""}></label>` : ""}
+        <label>${pk ? "= " : "Sacó "}<input inputmode="decimal" id="sq-${esc(it.k)}" data-sacq="${esc(it.k)}" placeholder="${aInput(it.cant)}" value="${edit ? aInput(m.cant) : ""}" ${bloq?"disabled":""}> ${esc(it.um.toLowerCase())}</label>
+        ${pk ? `<span class="eq2">1 ${pk.n} = ${nf2.format(pk.b)} ${esc(it.um.toLowerCase())}${it.k === "SALCHICHAS" ? ` (${nf.format(pk.b * 1000 / UNID.SALCHICHAS.g)} unid.)` : ""}</span>` : ""}
         ${edit ? `<span class="pill ${Math.abs(dif) < 0.005 ? "ok" : "warn"}">${Math.abs(dif) < 0.005 ? "Igual al plan" : (dif > 0 ? "+" : "−") + nf2.format(Math.abs(dif)) + " " + esc(it.um.toLowerCase()) + " vs plan"}</span>` : ""}
       </div>`, real)}</div>`}).join("")}</div></div>`).join("")
     : `<div class="card empty">Este día no hay nada en ${O.titulo.toLowerCase()}.</div>`;
